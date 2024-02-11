@@ -1,0 +1,37 @@
+name: gcc
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+env:
+  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache CPM modules
+        uses: actions/cache@v2
+        with:
+          path: "${{ env.CPM_SOURCE_CACHE }}"
+          key: ${{ runner.os }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+
+      - name: Configure with GCC
+        run: cmake -S app -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
+
+      - name: Build with GCC
+        run: cmake --build build -j4
+
+      - name: Run tests
+        run: ./build/WeatherApp
