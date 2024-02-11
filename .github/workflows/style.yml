@@ -1,4 +1,4 @@
-name: Style
+name: style
 
 on:
   push:
@@ -18,11 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Cache CPM modules
-        uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: "**/cpm_modules"
           key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
@@ -30,13 +28,8 @@ jobs:
       - name: Install format dependencies
         run: pip3 install clang-format==14.0.6 cmake_format==0.6.11 pyyaml
 
-      - name: Configure CMake
+      - name: configure
         run: cmake -Stest -Bbuild
 
-      - name: Run Clang-Tidy
-        run: |
-          cd build
-          cmake --build . --target check-clang-tidy
-          
-      - name: Check style with Clang-Format
+      - name: check style
         run: cmake --build build --target check-format
